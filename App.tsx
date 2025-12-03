@@ -64,10 +64,6 @@ function App() {
         setGenerationError(null);
         
         try {
-            if (!process.env.API_KEY) {
-                throw new Error("API Key mangler");
-            }
-
             const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
             
             const educationContext = selectedEducation 
@@ -113,9 +109,14 @@ function App() {
                 throw new Error("Ingen svar fra AI");
             }
 
-        } catch (err) {
-            console.error(err);
-            setGenerationError("Kunne ikke generere scenarie. Prøv igen eller tjek din forbindelse.");
+        } catch (err: any) {
+            console.error("Genereringsfejl:", err);
+            // Show more specific error messages if possible
+            if (err.message && err.message.includes("API Key")) {
+                 setGenerationError("API Key mangler. Tjek konfigurationen.");
+            } else {
+                 setGenerationError("Kunne ikke generere scenarie. Prøv igen eller tjek din forbindelse.");
+            }
         } finally {
             setIsGenerating(false);
         }
